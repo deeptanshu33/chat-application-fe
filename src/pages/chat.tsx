@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect,  } from "react";
 import { useWebSocket } from "../contexts/WebSocketContext";
+import { SendIcon } from "../icons/send_icon";
 
 function Chat() {
   const [messages, setMessages] = useState<string[]>([])
@@ -37,19 +38,19 @@ function Chat() {
   }, [messages])
  
   return ( 
-    <div className="h-screen bg-black">
+    <div className="h-screen bg-slate-950">
 
       {/* chat section */}
      <div className='h-93/100 overflow-y-auto'>
       
       {messages.map(message => <div className='mt-8 mb-8 ml-4'>
-        <span className='bg-amber-50 rounded p-4'>{message}</span>
+        <span className='bg-gray-800 text-white rounded p-4'>{message}</span>
       </div>)} 
       <div ref={chatLastMsgRef} />
      </div>
 
      {/* input box and button */}
-      <div className='w-full bg-white flex justify-around'>
+      <div className='w-full bg-gray-700 text-white flex justify-around'>
         <input 
         onKeyDown={(e)=>{
           if(e.key==='Enter'){
@@ -57,10 +58,10 @@ function Chat() {
           }
         }}  
         ref={inputRef} className='w-full p-4' type="text" />
-        <button className='bg-purple-600 text-white' 
+        <button className='bg-gray-800 text-white px-5 hover:cursor-pointer hover:bg-sky-600' 
         onClick={()=>{
           sendMessage()
-        }}>Send Message</button>
+        }}><SendIcon /></button>
       </div>
     </div>
   )

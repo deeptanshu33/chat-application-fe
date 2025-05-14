@@ -1,14 +1,17 @@
 import { useRef } from "react"
 import { useWebSocket } from "../contexts/WebSocketContext"
 import { useNavigate } from "react-router-dom"
+import { Button } from "../components/button"
+import { InputBox } from "../components/input_box"
+import { ArrowRight } from "../icons/arrow_right"
+import codeGenerator from "../utils/code_generator"
 
 function Dashboard(){
-    const redRef = useRef<HTMLButtonElement>(null)
-    const greenRef = useRef<HTMLButtonElement>(null)
+    const inputRef = useRef<HTMLInputElement>(null)
     const wsRef = useWebSocket()
     const navigate = useNavigate();
 
-    function handleJoinClick(buttonRef: React.RefObject<HTMLButtonElement | null>){
+    function handleJoinClick(){
         const ws = wsRef?.current;
 
         if(!ws || ws.readyState !== WebSocket.OPEN){
@@ -16,10 +19,34 @@ function Dashboard(){
             return;
         }
 
+        //generate a code for this room
+        const room_code = codeGenerator()
+        console.log(room_code)
+
         ws.send(JSON.stringify({
             type: "join",
             payload: {
-              roomId: buttonRef.current?.textContent || "unknown"
+              roomId: room_code || "unknown"
+            }
+        }))
+
+        navigate("/chat")
+    }
+
+    function handleRoomCodeClick(){
+        const ws = wsRef?.current;
+
+        if(!ws || ws.readyState !== WebSocket.OPEN){
+            console.warn("Web Socket is not connected");
+            return;
+        }
+
+        //get room code using ref
+        const room_code = inputRef.current?.value
+        ws.send(JSON.stringify({
+            type: "join",
+            payload:{
+                roomId: room_code
             }
         }))
 
@@ -28,15 +55,13 @@ function Dashboard(){
 
     return(
         <div className="bg-black h-screen flex justify-center items-center">
-            <div className="bg-blue-900 min-w-2xl min-h-8/12 h-[1/2] text-white rounded-2xl">
-                <div className="flex justify-center p-4 text-2xl">Join Room</div>
-                <div className="flex flex-col md:flex-row justify-around items-center p-5 mt-6 gap-3">
-                    <button ref={redRef} className="bg-red-400 rounded p-4 text-xl min-w-40 hover:bg-red-900 hover:cursor-pointer"
-                    onClick={() => handleJoinClick(redRef)}>
-                        Red</button>
-                    <button ref={greenRef} className="bg-green-400 rounded p-4 text-xl min-w-55 hover:bg-green-800 hover:cursor-pointer"
-                    onClick={() => handleJoinClick(greenRef)}>
-                        Green</button>
+            <div className="bg-gray-900 min-w-2xl min-h-8/12 h-[1/2] text-white rounded-2xl">
+                <div className="flex justify-center mt-40">
+                    <Button size="lg" text="Create room" onclick={handleJoinClick}/>
+                </div>
+                <div className="mt-2 flex justify-center">
+                    <InputBox ref={inputRef} placeholder_text="Enter room code" />
+                    <Button size="md" icon={<ArrowRight />} onclick={handleRoomCodeClick}/>
                 </div>
                 
             </div>
